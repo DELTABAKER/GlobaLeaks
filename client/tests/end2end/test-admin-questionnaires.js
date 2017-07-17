@@ -6,6 +6,7 @@ describe('admin add, configure and delete questionnaires', function() {
   };
 
   var add_question = function(question_type) {
+    console.log(question_type);
     element.all(by.model('new_field.label')).first().sendKeys(question_type);
     element.all(by.model('new_field.type')).first().element(by.xpath(".//*[text()='" + question_type + "']")).click();
     element.all(by.id('add-field-button')).first().click();
@@ -21,7 +22,8 @@ describe('admin add, configure and delete questionnaires', function() {
 
       //element.all(by.css('[data-ng-click="delOption(field, option)"]')).get(2).click();
 
-      console.log(question_type);
+      browser.gl.utils.waitUntilPresent(by.css('[data-ng-click="save_field(field)"]'));
+
       browser.gl.utils.clickFirstDisplayed(by.css('[data-ng-click="save_field(field)"]'));
       console.log(question_type);
     }
