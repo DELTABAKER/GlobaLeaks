@@ -1,5 +1,6 @@
-GLClient.controller('LoginCtrl', ['$scope', '$location', 'Authentication',
-    function($scope, $location, Authentication) {
+angular.module('GLClient').controller('LoginCtrl', ['$scope', '$location', 'Authentication',
+    function($scope, $location, Authentication, simple, donkey) {
+  console.log('loginCtrl');
   $scope.Authentication = Authentication;
 
   // If already logged in, just go to the landing page.
@@ -13,4 +14,8 @@ GLClient.controller('LoginCtrl', ['$scope', '$location', 'Authentication',
   $scope.loginPassword = "";
 
   $scope.simplifiedLogin = !!($location.path() === '/login' && $scope.node.simplified_login);
+
+  console.log($scope);
+  console.log('s' + $scope.$resolve);
+  console.log($scope.resolve);
 }]);

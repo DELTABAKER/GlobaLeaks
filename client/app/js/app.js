@@ -121,6 +121,45 @@ var GLClient = angular.module('GLClient', [
       return ['Access', function(Access) { return Access.OK; }];
     }
 
+    function adminResolve(lst, authProm) {
+      return ['$q', 'AdminContextResource', 'AdminQuestionnaireResource', 'AdminStepResource', 'AdminFieldResource', 'AdminFieldTemplateResource', 'AdminUserResource', 'AdminReceiverResource', 'AdminNodeResource', 'AdminNotificationResource', 'AdminShorturlResource', 'FieldAttrs', 'ActivitiesCollection', 'AnomaliesCollection', 'TipOverview', 'FileOverview', 'JobsOverview', function($q, AdminContextResource, AdminQuestionnaireResource, AdminStepResource, AdminFieldResource, AdminFieldTemplateResource, AdminUserResource, AdminReceiverResource, AdminNodeResource, AdminNotificationResource, AdminShorturlResource, FieldAttrs, ActivitiesCollection, AnomaliesCollection, TipOverview, FileOverview, JobsOverview) {
+
+        try {
+        var funPromises = {
+          //node: function() { return AdminNodeResource.get().$promise },
+          node: function() { return {description: 'XXXX'}; },
+          contexts: function() { return AdminContextResource.query().$promise },
+          questionnaires: function() { return AdminQuestionnaireResource.query().$promise },
+          fieldtemplates: function() { return AdminFieldTemplateResource.query().$promise },
+          users: function() { return AdminUserResource.query().$promise },
+          receivers: function() { return AdminReceiverResource.query().$promise },
+          notification: function() { return AdminNotificationResource.get().$promise },
+          shorturls: function() { return AdminShorturlResource.query().$promise },
+          activities: function() { return ActivitiesCollection.query().$promise },
+          anomalies: function() { return AnomaliesCollection.query().$promise },
+          tip_overview: function() { return TipOverview.query().$promise },
+          file_overview: function() { return FileOverview.query().$promise },
+          jobs_overview: function() { return JobsOverview.query().$promise },
+        }
+
+        var promises = {};
+        if (angular.isString(lst)) lst = [lst];
+        for (var i = 0; i < lst.length; i++) {
+           var name = lst[i]
+           promises[name] = funPromises[name]();
+
+        }
+        console.log('adminResolve > ret', promises);
+        var d = $q.all(promises);
+        //var d = $q.all({donk: 'boknknk'});
+        //return d
+        //return {donk: 'bar'};
+        } catch (e) {
+           console.log('adminResolve > excep', e)
+        }
+      }];
+    }
+
     $routeProvider.
       when('/wizard', {
         templateUrl: 'views/wizard/main.html',
@@ -200,7 +239,11 @@ var GLClient = angular.module('GLClient', [
         header_title: 'Administration interface',
         header_subtitle: 'Home page',
         resolve: {
-          access: requireAuth('admin')
+          access: requireAuth('admin'),
+          manifest: ['ManifestResource', function(ManifestResource) {
+            return ManifestResource.get().$promise;
+          }],
+          admin: adminResolve('node'),
         }
       }).
       when('/admin/content', {
@@ -210,6 +253,7 @@ var GLClient = angular.module('GLClient', [
         header_subtitle: 'General settings',
         resolve: {
           access: requireAuth('admin'),
+          admin: adminResolve('node'),
         }
       }).
       when('/admin/contexts', {
@@ -219,6 +263,7 @@ var GLClient = angular.module('GLClient', [
         header_subtitle: 'Context configuration',
         resolve: {
           access: requireAuth('admin'),
+          admin: adminResolve('contexts'),
         }
       }).
       when('/admin/questionnaires', {
@@ -228,6 +273,7 @@ var GLClient = angular.module('GLClient', [
         header_subtitle: 'Questionnaire configuration',
         resolve: {
           access: requireAuth('admin'),
+          admin: adminResolve('questionnaires'),
         }
       }).
       when('/admin/users', {
@@ -237,6 +283,7 @@ var GLClient = angular.module('GLClient', [
         header_subtitle: 'User management',
         resolve: {
           access: requireAuth('admin'),
+          admin: adminResolve('users'),
         }
       }).
       when('/admin/receivers', {
@@ -246,6 +293,7 @@ var GLClient = angular.module('GLClient', [
         header_subtitle: 'Recipient configuration',
         resolve: {
           access: requireAuth('admin'),
+          admin: adminResolve('receivers'),
         }
       }).
       when('/admin/mail', {
@@ -255,6 +303,7 @@ var GLClient = angular.module('GLClient', [
         header_subtitle: 'Notification settings',
         resolve: {
           access: requireAuth('admin'),
+          admin: adminResolve('notification'),
         }
       }).
       when('/admin/url_shortener', {
@@ -264,6 +313,7 @@ var GLClient = angular.module('GLClient', [
         header_subtitle: 'URL shortener',
         resolve: {
           access: requireAuth('admin'),
+          admin: adminResolve('shorturls'),
         }
       }).
       when('/admin/network', {
@@ -273,7 +323,8 @@ var GLClient = angular.module('GLClient', [
         header_subtitle: 'Network settings',
         resolve: {
           access: requireAuth('admin'),
-        }
+          admin: adminResolve('node'),
+        },
       }).
       when('/admin/advanced_settings', {
         templateUrl: 'views/admin/advanced.html',
@@ -282,15 +333,7 @@ var GLClient = angular.module('GLClient', [
         header_subtitle: 'Advanced settings',
         resolve: {
           access: requireAuth('admin'),
-        }
-      }).
-      when('/user/preferences', {
-        templateUrl: 'views/user/preferences.html',
-        controller: 'PreferencesCtrl',
-        header_title: 'User preferences',
-        header_subtitle: '',
-        resolve: {
-          access: requireAuth('*'),
+          admin: adminResolve('node'),
         }
       }).
       when('/admin/overview', {
@@ -300,6 +343,7 @@ var GLClient = angular.module('GLClient', [
         header_subtitle: 'System overview',
         resolve: {
           access: requireAuth('admin'),
+          admin: adminResolve(['activities', 'anomalies', 'tip_overview', 'file_overview', 'jobs_overview']),
         }
       }).
       when('/admin', {
@@ -326,6 +370,15 @@ var GLClient = angular.module('GLClient', [
         header_subtitle: "List of access requests to whistleblowers' identities",
         resolve: {
           access: requireAuth('custodian'),
+        }
+      }).
+      when('/user/preferences', {
+        templateUrl: 'views/user/preferences.html',
+        controller: 'PreferencesCtrl',
+        header_title: 'User preferences',
+        header_subtitle: '',
+        resolve: {
+          access: requireAuth('*'),
         }
       }).
       when('/login', {

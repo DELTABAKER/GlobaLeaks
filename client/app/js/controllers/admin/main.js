@@ -1,6 +1,6 @@
 GLClient.controller('AdminCtrl',
-    ['$scope', '$route', '$location', '$filter', 'Admin', 'AdminUtils', 'CONSTANTS',
-    function($scope, $route, $location, $filter, Admin, AdminUtils, CONSTANTS) {
+    ['$scope', '$route', '$location', '$filter', 'admin', 'AdminUtils', 'CONSTANTS',
+    function($scope, $route, $location, $filter, admin, AdminUtils, CONSTANTS) {
   $scope.email_regexp = CONSTANTS.email_regexp;
   $scope.hostname_regexp = CONSTANTS.hostname_regexp;
   $scope.onionservice_regexp = CONSTANTS.onionservice_regexp;
@@ -14,6 +14,15 @@ GLClient.controller('AdminCtrl',
 
   $scope.admin_utils = AdminUtils;
 
+  // TODO interpolate the variable correctly here.
+  console.log('AdminCtrl > admin', admin);
+  $scope.admin = admin;
+
+  // TODO switched out.
+  console.log('AdminCtrl > $scope.$resolve', $scope.$resolve);
+  //$scope.admin = $scope.$resolve;
+
+  /*
   $scope.admin = new Admin(function() {
     $scope.languages_enabled_edit = {};
     $scope.languages_enabled_selector = [];
@@ -77,6 +86,7 @@ GLClient.controller('AdminCtrl',
       }
     }, true);
   });
+  */
 
   // We need to have a special function for updating the node since we need to add old_password and password attribute
   // if they are not present
@@ -213,10 +223,9 @@ controller('AdminGeneralSettingsCtrl', ['$scope', '$filter', '$http', 'StaticFil
 
   $scope.update_static_files();
 }]).
-controller('AdminHomeCtrl', ['$scope', 'ManifestResource', function($scope, ManifestResource) {
-  ManifestResource.get().$promise.then(function(manifest) {
-    $scope.manifest = manifest;
-  });
+controller('AdminHomeCtrl', ['$scope', function($scope) {
+  console.log('AdminHomeCtrl > manifest', $scope.$resolve.manifest)
+  $scope.manifest = $scope.$resolve.manifest;
 
   $scope.displayNum = 10;
   $scope.showMore = function() {
